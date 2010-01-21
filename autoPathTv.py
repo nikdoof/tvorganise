@@ -23,7 +23,7 @@ regex_config={}
 # Path configs
 
 # Where to move the files
-config['target_path'] = "/Volumes/ionDrive/video/tv/%(file_showname)s/season %(seasno)s/"
+config['target_path'] = "/mnt/vault/video/TV Shows/%(file_showname)s/Season %(seasno)s/"
 
 
 ##############################################
@@ -232,7 +232,8 @@ def make_path(path):
     try:
         os.makedirs(path)
     except OSError:
-        print "Couldn't make path"
+        #print "Couldn't make path"
+	pass
 #end make_path
 
 def does_file_exist(path):
@@ -274,7 +275,7 @@ def main():
     
         print "Old path:", oldfile
         print "New path:", newfile
-        ans=confirm()
+        ans= "always"
         if ans == "always": opts.always = True
         
         if ans or opts.always:
@@ -286,14 +287,14 @@ def main():
                 if same_partition(oldfile, newpath):
                     print "[*] Moving file"
                     try:
-                        shutil.move(oldfile, newpath)
+                        shutil.rename(oldfile, newpath)
                     except Exception, errormsg:
                         print "[!] Error moving file! %s" % (errormsg)
                     #end try
                 else:
                     print "[*] Copying file"
                     try:
-                        copy_with_prog(oldfile, newfile)
+                        shutil.move(oldfile, newfile)
                     except Exception, errormsg:
                         print "[!] Error copying file! %s" % (errormsg)
                     else:
