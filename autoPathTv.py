@@ -265,7 +265,7 @@ def main():
     # Warn if no files are found, then exit
     if len(files) == 0:
         print colour('No files found','red')
-        sys.exit(1)
+        sys.exit(0)
     #end if files == 0
 
     for name in files:
@@ -287,14 +287,14 @@ def main():
                 if same_partition(oldfile, newpath):
                     print "[*] Moving file"
                     try:
-                        shutil.rename(oldfile, newpath)
+                        os.rename(oldfile, newfile)
                     except Exception, errormsg:
                         print "[!] Error moving file! %s" % (errormsg)
                     #end try
                 else:
                     print "[*] Copying file"
                     try:
-                        shutil.move(oldfile, newfile)
+                        shutil.copy(oldfile, newfile)
                     except Exception, errormsg:
                         print "[!] Error copying file! %s" % (errormsg)
                     else:
