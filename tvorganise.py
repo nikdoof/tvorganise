@@ -15,11 +15,18 @@ import ConfigParser
 import logging
 
 class TvOrganiser():
-	
-	def _getLogger(self):
-		lgr = logging.getLogger('tvorganise')
-		lgr.addHandler(logging.StreamHandler())
-		return lgr
+
+        _config = {}
+
+        def __init__(self):
+                pass
+
+        @property 	
+	def _logger(self):
+		if not hasattr(self, "__logger"):
+			self.__logger = logging.getLogger(self.__class__.__name__)
+			self.__logger.addHandler(logging.StreamHandler())
+		return self.__logger
 
 	def _getConfig(self, file):
 
@@ -90,14 +97,11 @@ class TvOrganiser():
 					
 					seasno, epno = int(seasno), int(epno)
 					
-					if verbose:
-						print "*"*20
-						print "File:", filename
-						print "Pattern:", r.pattern
-						print "Showname:", showname
-						print "Seas:", seasno
-						print "Ep:", epno
-						print "*"*20
+					self._logger.debug("File:", filename)
+					self._logger.debug("Pattern:", r.pattern)
+					self._logger.debug("Showname:", showname)
+					self._logger.debug("Seas:", seasno)
+					self._logger.debug("Ep:", epno)
 					
 					allEps.append({ 'file_showname':showname,
 									'seasno':seasno,
@@ -108,7 +112,7 @@ class TvOrganiser():
 								 })
 					break # Matched - to the next file!
 			else:
-				print "Invalid name: %s" % (f)
+				self._logger.warning("Invalid name: %s" % (f))
 		
 		return allEps
 	
@@ -136,17 +140,17 @@ class TvOrganiser():
 		opts, args = parser.parse_args()
 
 		if os.path.exists(opts.config):
-			config = getConfig(opts.config)
+			config = self._getConfig(opts.config)
 		else:
-			print 'Unable to find configuration file!'
+			self._logger.error('Unable to find configuration file!')
 			sys.exit(1)
 
-		files = findFiles(args)
-		files = processNames(files, opts.verbose)
+		files = self._findFiles(args)
+		files = self.processNames(files, opts.verbose)
 
 		# Warn if no files are found, then exit
 		if len(files) == 0:
-			print 'No files found'
+			self._logger.error('No files found')
 			sys.exit(0)
 
 		for name in files:
@@ -154,32 +158,32 @@ class TvOrganiser():
 			newpath = config['target_path'] % name
 			newfile = os.path.join(newpath, name['filename']) + "." + name['ext']
 		
-			print "Old path:", oldfile
-			print "New path:", newfile
+			self._logger.info("Old path:", oldfile)
+			self._logger.info("New path:", newfile)
 			ans= "always"
 			
 			if opts.always:
 				if not os.path.exists(newpath):
 					os.mkdirs(newpath)
 				if os.path.exists(newfile):
-					print "[!] File already exists, not copying"
+					self._logger.warning("[!] File already exists, not copying")
 				else:
 					if self._same_partition(oldfile, newpath):
-						print "[*] Moving file"
+						self._logger.info("[*] Moving file")
 						try:
 							os.rename(oldfile, newfile)
 						except Exception, errormsg:
-							print "[!] Error moving file! %s" % (errormsg)
+							self._logger.error("[!] Error moving file! %s" % (errormsg))
 					else:
-						print "[*] Copying file"
+						self._logger.info("[*] Copying file")
 						try:
 							shutil.copy(oldfile, newfile)
 						except Exception, errormsg:
-							print "[!] Error copying file! %s" % (errormsg)
+							self._logger.error("[!] Error copying file! %s" % (errormsg))
 						else:
-							print "[*] ..done"
+							self._logger.info("[*] ..done")
 			else:
-				print "Skipping file"
+				self._logger.warning("Skipping file")
 
 if __name__ == '__main__':
 	
