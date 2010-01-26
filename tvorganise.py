@@ -210,3 +210,7 @@ class TvOrganiser():
                             self._logger.info("[*] ..done")
             else:
                 self._logger.warning("Skipping file: %s" % filename)
+
+def main():
+    t = TvOrganiser()
+    t.main()
