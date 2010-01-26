@@ -16,10 +16,39 @@ import shutil
 import ConfigParser
 import logging
 
+def same_partition(path1, path2):
+    """
+    Checks to see if two paths are on the same device, returns a
+    bool to indicate
+    """
+    return os.stat(path1).st_dev == os.stat(path2).st_dev
+
+def find_files(args):
+    """
+    Takes a list of files/folders, grabs files inside them. Does not
+    recurse more than one level (if a folder is supplied, it will list
+    files within)
+    """
+    filelist = []
+    for cfile in args:
+        if os.path.isdir(cfile):
+            for sf in os.listdir(cfile):
+                newpath = os.path.join(cfile, sf)
+                if os.path.isfile(newpath):
+                    filelist.append(newpath)
+        elif os.path.isfile(cfile):
+            filelist.append(cfile)
+    return filelist
+
 
 class TvOrganiser():
+    """
+    TvOrganiser takes a list of files and validates them against known filename
+    formats, then moves the files to a specified tree layout.
+    """
 
     _config = {}
+    __logger = None
 
     def __init__(self):
         pass
@@ -31,12 +60,12 @@ class TvOrganiser():
             self.__logger.addHandler(logging.StreamHandler())
         return self.__logger
 
-    def _getConfig(self, file):
+    def _getConfig(self, cfile):
 
         config = {}
 
         configpsr = ConfigParser.RawConfigParser()
-        configpsr.read('tvorganise.cfg')
+        configpsr.read(cfile)
 
         if configpsr.has_section('main'):
             for k, v in configpsr.items('main'):
@@ -61,28 +90,11 @@ class TvOrganiser():
         self._config = config
         return config
 
-    def _findFiles(self, args):
-        """
-        Takes a list of files/folders, grabs files inside them. Does not
-        recurse more than one level (if a folder is supplied, it will list
-        files within)
-        """
-        allfiles = []
-        for cfile in args:
-            if os.path.isdir(cfile):
-                for sf in os.listdir(cfile):
-                    newpath = os.path.join(cfile, sf)
-                    if os.path.isfile(newpath):
-                        allfiles.append(newpath)
-            elif os.path.isfile(cfile):
-                allfiles.append(cfile)
-        return allfiles
-
-    def processNames(self, names, verbose=False):
+    def process(self, names):
         """
         Takes list of names, runs them though the regexs
         """
-        allEps = []
+        episodelist = []
         for f in names:
             filepath, filename = os.path.split(f)
             filename, ext = os.path.splitext(filename)
@@ -90,7 +102,7 @@ class TvOrganiser():
             # Remove leading . from extension
             ext = ext.replace(".", "", 1)
 
-            for r in config['regex']:
+            for r in self._config['regex']:
                 match = r.match(filename)
                 if match:
                     showname, seasno, epno, epname = match.groups()
@@ -106,22 +118,18 @@ class TvOrganiser():
                     self._logger.debug("Seas:", seasno)
                     self._logger.debug("Ep:", epno)
 
-                    allEps.append({'file_showname': showname,
+                    episodelist.append({'file_showname': showname,
                                     'seasno': seasno,
                                     'epno': epno,
                                     'filepath': filepath,
                                     'filename': filename,
+                                    'epname': epname,
                                     'ext': ext})
                     break # Matched - to the next file!
             else:
                 self._logger.warning("Invalid name: %s" % (f))
 
-        return allEps
-
-    def _same_partition(f1, f2):
-        return os.stat(f1).st_dev == os.stat(f2).st_dev
-
-    ###########################
+        return episodelist
 
     def main(self):
         parser = OptionParser(usage="%prog [options] <file or directories>")
@@ -146,8 +154,8 @@ class TvOrganiser():
             self._logger.error('Unable to find configuration file!')
             sys.exit(1)
 
-        files = self._findFiles(args)
-        files = self.processNames(files, opts.verbose)
+        files = find_files(args)
+        files = self.process(files)
 
         # Warn if no files are found, then exit
         if len(files) == 0:
@@ -165,21 +173,21 @@ class TvOrganiser():
 
             if opts.always:
                 if not os.path.exists(newpath):
-                    os.mkdirs(newpath)
+                    os.makedirs(newpath)
                 if os.path.exists(newfile):
                     self._logger.warning("[!] File already exists, not copying")
                 else:
-                    if self._same_partition(oldfile, newpath):
+                    if same_partition(oldfile, newpath):
                         self._logger.info("[*] Moving file")
                         try:
                             os.rename(oldfile, newfile)
-                        except Exception, errormsg:
+                        except OSError, errormsg:
                             self._logger.error("[!] Error moving file! %s" % (errormsg))
                     else:
                         self._logger.info("[*] Copying file")
                         try:
                             shutil.copy(oldfile, newfile)
-                        except Exception, errormsg:
+                        except IOError, errormsg:
                             self._logger.error("[!] Error copying file! %s" % (errormsg))
                         else:
                             self._logger.info("[*] ..done")
@@ -188,5 +196,5 @@ class TvOrganiser():
 
 if __name__ == '__main__':
 
-    t = TvOrganiser()
-    t.main()
+    tvorg = TvOrganiser()
+    tvorg.main()
