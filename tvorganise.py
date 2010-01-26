@@ -30,14 +30,11 @@ def find_files(args):
     files within)
     """
     filelist = []
-    for cfile in args:
-        if os.path.isdir(cfile):
-            for sf in os.listdir(cfile):
-                newpath = os.path.join(cfile, sf)
-                if os.path.isfile(newpath):
-                    filelist.append(newpath)
-        elif os.path.isfile(cfile):
-            filelist.append(cfile)
+
+    for root, dirs, files in os.walk(args, topdown=False):
+        for name in files:
+            filelist.append(os.path.join(root, name))
+
     return filelist
 
 
