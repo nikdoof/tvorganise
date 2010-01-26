@@ -14,7 +14,7 @@ license='GPLv2',
 py_modules = [ 'tvorganise'],
 entry_points = {
     'console_scripts':[
-        'tvorganise = tvorganise:TvOrganise.main'
+        'tvorganise = tvorganise:TvOrganiser.main'
     ]
 },
 
