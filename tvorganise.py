@@ -52,12 +52,21 @@ class TvOrganiser():
 
     @property
     def _logger(self):
+        """
+        Returns the class logger instance
+        """
         if not hasattr(self, "__logger"):
             self.__logger = logging.getLogger(self.__class__.__name__)
             self.__logger.addHandler(logging.StreamHandler())
         return self.__logger
 
-    def _getConfig(self, cfile):
+    def _get_config(self, cfile):
+        """
+        Parses the TVOrganiser style config file and produces a dict
+        with all the elements contained within.
+ 
+        Also, all regex specified in the file are compiled
+        """
 
         config = {}
 
@@ -65,8 +74,8 @@ class TvOrganiser():
         configpsr.read(cfile)
 
         if configpsr.has_section('main'):
-            for k, v in configpsr.items('main'):
-                config[k] = v
+            for key, value in configpsr.items('main'):
+                config[key] = value
 
         if configpsr.has_section('regex'):
 
@@ -74,13 +83,13 @@ class TvOrganiser():
             regex = []
 
             # Load in subs before reading in the regex
-            for k, v in configpsr.items('regex'):
-                if k[:5] != 'regex':
-                    regex_config[k] = v
+            for key, value in configpsr.items('regex'):
+                if key[:5] != 'regex':
+                    regex_config[key] = value
 
-            for k, v in configpsr.items('regex'):
-                if k[:5] == 'regex':
-                    regex.append(re.compile(v % regex_config))
+            for key, value in configpsr.items('regex'):
+                if key[:5] == 'regex':
+                    regex.append(re.compile(value % regex_config))
 
             config['regex'] = regex
 
@@ -92,15 +101,15 @@ class TvOrganiser():
         Takes list of names, runs them though the regexs
         """
         episodelist = []
-        for f in names:
-            filepath, filename = os.path.split(f)
+        for efile in names:
+            filepath, filename = os.path.split(efile)
             filename, ext = os.path.splitext(filename)
 
             # Remove leading . from extension
             ext = ext.replace(".", "", 1)
 
-            for r in self._config['regex']:
-                match = r.match(filename)
+            for regex in self._config['regex']:
+                match = regex.match(filename)
                 if match:
                     showname, seasno, epno, epname = match.groups()
 
@@ -110,7 +119,7 @@ class TvOrganiser():
                     seasno, epno = int(seasno), int(epno)
 
                     self._logger.debug("File:", filename)
-                    self._logger.debug("Pattern:", r.pattern)
+                    self._logger.debug("Pattern:", regex.pattern)
                     self._logger.debug("Showname:", showname)
                     self._logger.debug("Seas:", seasno)
                     self._logger.debug("Ep:", epno)
@@ -124,11 +133,15 @@ class TvOrganiser():
                                     'ext': ext})
                     break # Matched - to the next file!
             else:
-                self._logger.warning("Invalid name: %s" % (f))
+                self._logger.warning("Invalid name: %s" % (efile))
 
         return episodelist
 
     def main(self):
+        """
+        TVOrganiser, provide a path or file to process
+        """
+
         parser = OptionParser(usage="%prog [options] <file or directories>")
         parser.add_option("-a", "--always", dest="always",
             action="store_true", default=False,
@@ -146,7 +159,7 @@ class TvOrganiser():
         opts, args = parser.parse_args()
 
         if os.path.exists(opts.config):
-            config = self._getConfig(opts.config)
+            config = self._get_config(opts.config)
         else:
             self._logger.error('Unable to find configuration file!')
             sys.exit(1)
@@ -190,8 +203,3 @@ class TvOrganiser():
                             self._logger.info("[*] ..done")
             else:
                 self._logger.warning("Skipping file")
-
-if __name__ == '__main__':
-
-    tvorg = TvOrganiser()
-    tvorg.main()
