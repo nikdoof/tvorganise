@@ -11,25 +11,35 @@ the location format defined in the configuration file.
 import os, sys, re
 from optparse import OptionParser
 import shutil
+import ConfigParser
 
 config = {}
-regex_config={}
+regex = []
 
-##############################################
-# Path configs
+configpsr = ConfigParser.RawConfigParser()
+configpsr.read('tvorganise.cfg')
 
-# Where to move the files
-config['target_path'] = "/mnt/vault/video/TV Shows/%(file_showname)s/Season %(seasno)s/"
+if configpsr.has_section('main'):
+    for k, v in configpsr.items('main'):
+        config[k] = v
 
+if configpsr.has_section('regex'):
+ 
+    regex_config = {}
 
-##############################################
-# Regex configs
+    # Load in subs before reading in the regex
+    for k, v in configpsr.items('regex'):
+	if k[:5] != 'regex':
+            regex_config[k] = v
 
-# Import shared filename pattern config
-from filename_config import tv_regex
+    for k, v in configpsr.items('regex'):
+        if k[:5] == 'regex':
+            regex.append(re.compile(v % regex_config))
 
-# end configs
-##############################################
+    config['regex'] = regex
+
+print config
+
 
 def findFiles(args):
     """
@@ -43,14 +53,9 @@ def findFiles(args):
                 newpath = os.path.join(cfile, sf)
                 if os.path.isfile(newpath):
                     allfiles.append(newpath)
-                #end if isfile
-            #end for sf
         elif os.path.isfile(cfile):
             allfiles.append(cfile)
-        #end if isdir
-    #end for cfile
     return allfiles
-#end findFiles
 
 def processNames(names, verbose=False):
     """
@@ -64,7 +69,7 @@ def processNames(names, verbose=False):
         # Remove leading . from extension
         ext = ext.replace(".", "", 1)
         
-        for r in tv_regex['with_ep_name']:
+        for r in config['regex']:
             match = r.match(filename)
             if match:
                 showname, seasno, epno, epname = match.groups()
@@ -93,26 +98,8 @@ def processNames(names, verbose=False):
                 break # Matched - to the next file!
         else:
             print "Invalid name: %s" % (f)
-        #end for r
-    #end for f
     
     return allEps
-#end processNames
-
-def confirm(question="Rename files?"):
-    ans = None
-    while ans not in ["q", "quit"]:
-        print "y/n/a/q?",
-        ans = raw_input()
-        if ans.lower() in ["y", "yes"]:
-            return True
-        elif ans.lower() in ["n", "no"]:
-            return False
-        elif ans.lower() in ["a", "always"]:
-            return "always"
-    else:
-        sys.exit(1)
-#end confirm
 
 def make_path(path):
     try:
@@ -120,7 +107,6 @@ def make_path(path):
     except OSError:
         #print "Couldn't make path"
 	pass
-#end make_path
 
 def does_file_exist(path):
     try:
