@@ -31,9 +31,10 @@ def find_files(args):
     """
     filelist = []
 
-    for root, dirs, files in os.walk(args, topdown=False):
-        for name in files:
-            filelist.append(os.path.join(root, name))
+    for path in args:
+        for root, dirs, files in os.walk(path, topdown=False):
+            for name in files:
+                filelist.append(os.path.join(root, name))
 
     return filelist
 
@@ -167,6 +168,8 @@ class TvOrganiser():
         files = find_files(args)
         files = self.process(files)
 
+        self._logger.debug(files)
+
         # Warn if no files are found, then exit
         if len(files) == 0:
             self._logger.error('No files found')
@@ -202,4 +205,4 @@ class TvOrganiser():
                         else:
                             self._logger.info("[*] ..done")
             else:
-                self._logger.warning("Skipping file")
+                self._logger.warning("Skipping file: %s" % filename)
