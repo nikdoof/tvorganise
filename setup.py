@@ -1,19 +1,17 @@
 from setuptools import setup, find_packages
 setup(
-name = 'checkTvEps',
+name = 'tvorganise',
 version='0.1',
 
-author='dbr/Ben',
-description='A collection of utilties to verify TV episodes match a naming scheme',
+author='Andrew Williams',
+description='Utilities to verify TV episode filenames and move them into a organise tree. Forked from dbr/Bens checkTvEps toolset',
 url='http://github.com/dbr/checktveps/tree/master',
 license='GPLv2',
 
-py_modules = ['filename_config', 'checkTvEps', 'checkFilms', 'autoPathTv'],
+py_modules = ['filename_config', 'tvorganise'],
 entry_points = {
     'console_scripts':[
-        'checkTvEps = checkTvEps:main',
-        'checkFilms = checkFilms:main',
-        'autoPathTv = autoPathTv:main'
+        'tvorganise = tvOrganise:main'
     ]
 },
 

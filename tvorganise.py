@@ -1,20 +1,16 @@
 #!/usr/bin/env python
 #encoding:utf-8
 """
-autoPathTv.py
-Use at your own risk. "It works for me".
+tvorganise.py
 
 This parses "Show Name - [01x23] - Episode Name.avi"
 filenames and automatically copies them to
-/Volumes/aodDrive/video/tv/Show Name/season 1/
-
-(obviously the path is changable, as is in the input 
-format if you change the reges)
+the location format defined in the configuration file.
 """
+
 import os, sys, re
 from optparse import OptionParser
 import shutil
-
 
 config = {}
 regex_config={}
