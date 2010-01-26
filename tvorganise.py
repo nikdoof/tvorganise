@@ -34,6 +34,7 @@ if configpsr.has_section('regex'):
 
     for k, v in configpsr.items('regex'):
         if k[:5] == 'regex':
+            print v % regex_config
             regex.append(re.compile(v % regex_config))
 
     config['regex'] = regex
@@ -59,7 +60,7 @@ def findFiles(args):
 
 def processNames(names, verbose=False):
     """
-    Takes list of names, runs them though the tv_regex['with_ep_name'] regexs
+    Takes list of names, runs them though the regexs
     """
     allEps = []
     for f in names:
@@ -121,7 +122,6 @@ def same_partition(f1, f2):
     return os.stat(f1).st_dev == os.stat(f2).st_dev
 
 ###########################
-
 
 def main():
     parser = OptionParser(usage="%prog [options] <file or directories>")
