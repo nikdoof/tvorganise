@@ -8,10 +8,10 @@ description='Utilities to verify TV episode filenames and move them into a organ
 url='http://github.com/dbr/checktveps/tree/master',
 license='GPLv2',
 
-py_modules = ['filename_config', 'tvorganise'],
+py_modules = [ 'tvorganise'],
 entry_points = {
     'console_scripts':[
-        'tvorganise = tvOrganise:main'
+        'tvorganise = tvorganise:TvOrganise.main'
     ]
 },
 
