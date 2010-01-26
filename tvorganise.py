@@ -12,34 +12,41 @@ import os, sys, re
 from optparse import OptionParser
 import shutil
 import ConfigParser
+import logging
 
-config = {}
-regex = []
+def getLogger():
+    lgr = logging.getLogger('tvorganise')
+    lgr.addHandler(logging.StreamHandler())
+    return lgr
 
-configpsr = ConfigParser.RawConfigParser()
-configpsr.read('tvorganise.cfg')
+def getConfig(file):
 
-if configpsr.has_section('main'):
-    for k, v in configpsr.items('main'):
-        config[k] = v
+    config = {}
 
-if configpsr.has_section('regex'):
+    configpsr = ConfigParser.RawConfigParser()
+    configpsr.read('tvorganise.cfg')
+
+    if configpsr.has_section('main'):
+        for k, v in configpsr.items('main'):
+            config[k] = v
+
+    if configpsr.has_section('regex'):
  
-    regex_config = {}
+        regex_config = {}
+        regex = []
 
-    # Load in subs before reading in the regex
-    for k, v in configpsr.items('regex'):
-	if k[:5] != 'regex':
-            regex_config[k] = v
+        # Load in subs before reading in the regex
+        for k, v in configpsr.items('regex'):
+            if k[:5] != 'regex':
+                regex_config[k] = v
 
-    for k, v in configpsr.items('regex'):
-        if k[:5] == 'regex':
-            print v % regex_config
-            regex.append(re.compile(v % regex_config))
+        for k, v in configpsr.items('regex'):
+            if k[:5] == 'regex':
+                regex.append(re.compile(v % regex_config))
 
-    config['regex'] = regex
+        config['regex'] = regex
 
-print config
+	return config
 
 
 def findFiles(args):
@@ -128,11 +135,27 @@ def main():
     parser.add_option("-a", "--always", dest = "always",
         action="store_true", default = False, 
         help="Do not ask for confirmation before copying")
-    
+    parser.add_option("-q", "--quiet", dest = "quiet",
+        action="store_true", default = False,
+        help="Silence output")
+    parser.add_option("-c", "--config", dest = "config",
+        action="store", default = "tvorganise.cfg",
+        help="Use a custom configuration file")
+    parser.add_option("-v", "", dest = "verbose",
+        action="store_true", default = False,
+        help="Verbose output")
+
+
     opts, args = parser.parse_args()
-    
+
+    if os.path.exists(opts.config):
+        config = getConfig(opts.config)
+    else:
+        print 'Unable to find configuration file!'
+        sys.exit(1)
+
     files = findFiles(args)
-    files = processNames(files)
+    files = processNames(files, opts.verbose)
 
     # Warn if no files are found, then exit
     if len(files) == 0:
