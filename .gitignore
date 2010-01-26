@@ -1,2 +1,6 @@
 .DS_Store
 *.pyc
+debian/tvorganise*
+build/
+*.egg-info
+python-build-stamp-2.5
