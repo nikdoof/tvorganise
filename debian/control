@@ -10,7 +10,6 @@ Homepage: http://git.tensixtyone.com/code/tvorganise.git
 Package: tvorganise
 Architecture: all
 Depends: ${python:Depends}
-Recommends: python-dbus, policykit 
 XB-Python-Version: ${python:Versions}
 Description: Organises video files into a logical structure based on filename
  This enables you to organise files based on the file names, it uses a particular filename convetion
