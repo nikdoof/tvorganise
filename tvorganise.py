@@ -25,14 +25,18 @@ def same_partition(path1, path2):
 
 def find_files(args):
     """
-    Takes a list of files/folders, grabs files inside them. Does not
-    recurse more than one level (if a folder is supplied, it will list
-    files within)
+    Take a singular path or a list of paths and provides a list of all files in
+    that directory structure.
     """
     filelist = []
-
-    for path in args:
-        for root, dirs, files in os.walk(path, topdown=False):
+    
+    if isinstance(args, list):
+        for path in args:
+            for root, dirs, files in os.walk(path, topdown=False):
+                for name in files:
+                    filelist.append(os.path.join(root, name))
+    else:
+        for root, dirs, files in os.walk(args, topdown=False):
             for name in files:
                 filelist.append(os.path.join(root, name))
 
