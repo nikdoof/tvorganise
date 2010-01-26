@@ -1,5 +1,5 @@
 all:
-	python test.py
+	./setup.py test
 
 clean:
 	rm -f *.pyc

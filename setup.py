@@ -27,5 +27,8 @@ classifiers=[
     "Programming Language :: Python",
     "Topic :: Multimedia",
     "Topic :: Utilities"
-]
+],
+
+test_suite="tests.all"
+
 )

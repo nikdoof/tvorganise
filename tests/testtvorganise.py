@@ -45,8 +45,11 @@ class testFindFiles(unittest.TestCase):
     def testCrapInput(self):
         self.assertEqual(len(tvorganise.find_files("belfrhe")),0)
 
-def suite():
-    suite = unittest.TestSuite()
+def suite(suite=None):
+
+    if not suite:
+        suite = unittest.TestSuite()
+
     suite.addTest(unittest.makeSuite(testTvOrganise))
     suite.addTest(unittest.makeSuite(testFindFiles))
  
