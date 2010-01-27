@@ -62,7 +62,6 @@ class TvOrganiser():
         """
         if not hasattr(self, "__logger"):
             self.__logger = logging.getLogger(self.__class__.__name__)
-            self.__logger.addHandler(logging.StreamHandler())
         return self.__logger
 
     def _get_config(self, cfile):
@@ -101,9 +100,10 @@ class TvOrganiser():
         self._config = config
         return config
 
-    def process(self, names):
+    def parse_filenames(self, names):
         """
-        Takes list of names, runs them though the regexs
+        Takes list of names, runs them though the regexs and breaks them down
+        into logical information.
         """
         episodelist = []
         for efile in names:
@@ -129,12 +129,12 @@ class TvOrganiser():
                     self._logger.debug("Seas:", seasno)
                     self._logger.debug("Ep:", epno)
 
-                    episodelist.append({'file_showname': showname,
-                                    'seasno': seasno,
-                                    'epno': epno,
+                    episodelist.append({'showname': showname,
+                                    'seasonnum': seasno,
+                                    'episodenum': epno,
                                     'filepath': filepath,
                                     'filename': filename,
-                                    'epname': epname,
+                                    'episodename': epname,
                                     'ext': ext})
                     break # Matched - to the next file!
             else:
@@ -170,7 +170,7 @@ class TvOrganiser():
             sys.exit(1)
 
         files = find_files(args)
-        files = self.process(files)
+        files = self.parse_filenames(files)
 
         self._logger.debug(files)
 
@@ -212,5 +212,10 @@ class TvOrganiser():
                 self._logger.warning("Skipping file: %s" % filename)
 
 def main():
+    logging.basicConfig(format="%(name)s:%(levelname)s: %(message)s")
+
     t = TvOrganiser()
     t.main()
+
+if __name__ == '__main__':
+    main()
