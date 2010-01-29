@@ -167,7 +167,7 @@ class TvOrganiser():
         if os.path.exists(opts.config):
             cfile = opts.config
         else:
-            for path in [ '%s/.tvorganise.cfg' % os.environ['HOME'], '/etc/tvorganise.cfg']:
+            for path in [ os.path.expanduser('~/.tvorganise.cfg'), '/etc/tvorganise.cfg']:
                 if os.path.exists(path):
                     cfile = path
                     break
