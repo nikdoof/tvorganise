@@ -123,11 +123,11 @@ class TvOrganiser():
 
                     seasno, epno = int(seasno), int(epno)
 
-                    self._logger.debug("File:", filename)
-                    self._logger.debug("Pattern:", regex.pattern)
-                    self._logger.debug("Showname:", showname)
-                    self._logger.debug("Seas:", seasno)
-                    self._logger.debug("Ep:", epno)
+                    self._logger.debug("File: %s" % filename)
+                    self._logger.debug("Pattern: %s" % regex.pattern)
+                    self._logger.debug("Showname: %s" % showname)
+                    self._logger.debug("Seas: %s" % seasno)
+                    self._logger.debug("Ep: %s" % epno)
 
                     episodelist.append({'showname': showname,
                                     'seasonnum': seasno,
@@ -185,37 +185,41 @@ class TvOrganiser():
             newpath = config['target_path'] % name
             newfile = os.path.join(newpath, filename)
 
-            self._logger.info("Old path:", oldfile)
-            self._logger.info("New path:", newfile)
+            self._logger.info("Old path: %s" % oldfile)
+            self._logger.info("New path: %s" % newfile)
 
             if opts.always:
                 if not os.path.exists(newpath):
                     os.makedirs(newpath)
                 if os.path.exists(newfile):
-                    self._logger.warning("[!] File already exists, not copying")
+                    self._logger.warning("File already exists, not copying")
                 else:
                     if same_partition(oldfile, newpath):
-                        self._logger.info("[*] Moving file")
+                        self._logger.info("Moving file")
                         try:
                             os.rename(oldfile, newfile)
                         except OSError, errormsg:
-                            self._logger.error("[!] Error moving file! %s" % (errormsg))
+                            self._logger.error("Error moving file! %s" % errormsg)
                     else:
-                        self._logger.info("[*] Copying file")
+                        self._logger.info("Copying file")
                         try:
                             shutil.copy(oldfile, newfile)
                         except IOError, errormsg:
-                            self._logger.error("[!] Error copying file! %s" % (errormsg))
+                            self._logger.error("Error copying file! %s" % errormsg)
                         else:
-                            self._logger.info("[*] ..done")
+                            self._logger.info("done")
             else:
                 self._logger.warning("Skipping file: %s" % filename)
 
 def main():
+    """
+    Start a stand alone instance of TvOrganise
+    """
+
     logging.basicConfig(format="%(name)s:%(levelname)s: %(message)s")
 
-    t = TvOrganiser()
-    t.main()
+    tvorg = TvOrganiser()
+    tvorg.main()
 
 if __name__ == '__main__':
     main()

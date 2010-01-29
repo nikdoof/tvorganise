@@ -5,14 +5,30 @@ import tvorganise
 import unittest
 import os
 import shutil
+import tempfile
 
 class testTvOrganise(unittest.TestCase):
     """
     Test class for TvOrganise module
     """
 
-    def setUp(self):
+    def testConfigParser(self):
+        """
+        Simple test to check to see if the config parser actually returns a
+        dict on completion
+        """
+        dict = self.tvo._get_config('tvorganise.cfg')
+        self.assertTrue(dict)
+
+    def testConfigSettings(self):
+        """
+        Using a predefined dict, save then load the config and validate 
+        the contents
+        """
         pass
+
+    def setUp(self):
+        self.tvo = tvorganise.TvOrganiser()
 
 
 class testFindFiles(unittest.TestCase):
