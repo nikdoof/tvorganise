@@ -16,6 +16,7 @@ import shutil
 import ConfigParser
 import logging
 
+import config
 
 def same_partition(path1, path2):
     """
@@ -65,42 +66,6 @@ class TvOrganiser():
         if not hasattr(self, "__logger"):
             self.__logger = logging.getLogger(self.__class__.__name__)
         return self.__logger
-
-    def _get_config(self, cfile):
-        """
-        Parses the TVOrganiser style config file and produces a dict
-        with all the elements contained within.
-
-        Also, all regex specified in the file are compiled
-        """
-
-        config = {}
-
-        configpsr = ConfigParser.RawConfigParser()
-        configpsr.read(cfile)
-
-        if configpsr.has_section('main'):
-            for key, value in configpsr.items('main'):
-                config[key] = value
-
-        if configpsr.has_section('regex'):
-
-            regex_config = {}
-            regex = []
-
-            # Load in subs before reading in the regex
-            for key, value in configpsr.items('regex'):
-                if key[:5] != 'regex':
-                    regex_config[key] = value
-
-            for key, value in configpsr.items('regex'):
-                if key[:5] == 'regex':
-                    regex.append(re.compile(value % regex_config))
-
-            config['regex'] = regex
-
-        self._config = config
-        return config
 
     def parse_filenames(self, names):
         """
@@ -180,7 +145,7 @@ class TvOrganiser():
             sys.exit(1)
 
         self._logger.info('Using config file: %s' % cfile)
-        config = self._get_config(cfile)
+        self._config = config.Config(cfile)
 
         files = find_files(args)
         files = self.parse_filenames(files)
@@ -195,7 +160,7 @@ class TvOrganiser():
         for name in files:
             filename = "%s.%s" % (name['filename'], name['ext'])
             oldfile = os.path.join(name['filepath'], filename)
-            newpath = config['target_path'] % name
+            newpath = self._config['target_path'] % name
             newfile = os.path.join(newpath, filename)
 
             self._logger.info("Old path: %s" % oldfile)

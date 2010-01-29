@@ -6,6 +6,7 @@ import unittest
 import os
 import shutil
 import tempfile
+import tvorganise.config
 
 class testTvOrganise(unittest.TestCase):
     """
@@ -17,7 +18,7 @@ class testTvOrganise(unittest.TestCase):
         Simple test to check to see if the config parser actually returns a
         dict on completion
         """
-        dict = self.tvo._get_config('tvorganise.cfg')
+        dict = tvorganise.config.Config('tvorganise.cfg')
         self.assertTrue(dict)
 
     def testConfigSettings(self):
