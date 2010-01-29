@@ -162,12 +162,22 @@ class TvOrganiser():
             help="Verbose output")
 
         opts, args = parser.parse_args()
+        cfile = None
 
         if os.path.exists(opts.config):
-            config = self._get_config(opts.config)
+            cfile = opts.config
         else:
+            for path in [ '%s/.tvorganise.cfg' % os.environ['HOME'], '/etc/tvorganise.cfg']:
+                if os.path.exists(path):
+                    cfile = path
+                    break
+
+        if not cfile:
             self._logger.error('Unable to find configuration file!')
             sys.exit(1)
+        
+        self._logger.info('Using config file: %s' % cfile)
+        config = self._get_config(cfile)
 
         files = find_files(args)
         files = self.parse_filenames(files)
@@ -216,7 +226,7 @@ def main():
     Start a stand alone instance of TvOrganise
     """
 
-    logging.basicConfig(format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.INFO,format="%(name)s:%(levelname)s: %(message)s")
 
     tvorg = TvOrganiser()
     tvorg.main()
