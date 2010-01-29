@@ -16,6 +16,7 @@ import shutil
 import ConfigParser
 import logging
 
+
 def same_partition(path1, path2):
     """
     Checks to see if two paths are on the same device, returns a
@@ -23,13 +24,14 @@ def same_partition(path1, path2):
     """
     return os.stat(path1).st_dev == os.stat(path2).st_dev
 
+
 def find_files(args):
     """
     Take a singular path or a list of paths and provides a list of all files in
     that directory structure.
     """
     filelist = []
-    
+
     if isinstance(args, list):
         for path in args:
             for root, dirs, files in os.walk(path, topdown=False):
@@ -68,7 +70,7 @@ class TvOrganiser():
         """
         Parses the TVOrganiser style config file and produces a dict
         with all the elements contained within.
- 
+
         Also, all regex specified in the file are compiled
         """
 
@@ -167,7 +169,8 @@ class TvOrganiser():
         if os.path.exists(opts.config):
             cfile = opts.config
         else:
-            for path in [ os.path.expanduser('~/.tvorganise.cfg'), '/etc/tvorganise.cfg']:
+            for path in [os.path.expanduser('~/.tvorganise.cfg'),
+                         '/etc/tvorganise.cfg']:
                 if os.path.exists(path):
                     cfile = path
                     break
@@ -175,7 +178,7 @@ class TvOrganiser():
         if not cfile:
             self._logger.error('Unable to find configuration file!')
             sys.exit(1)
-        
+
         self._logger.info('Using config file: %s' % cfile)
         config = self._get_config(cfile)
 
@@ -209,24 +212,28 @@ class TvOrganiser():
                         try:
                             os.rename(oldfile, newfile)
                         except OSError, errormsg:
-                            self._logger.error("Error moving file! %s" % errormsg)
+                            self._logger.error("Error moving file! %s"
+                                               % errormsg)
                     else:
                         self._logger.info("Copying file")
                         try:
                             shutil.copy(oldfile, newfile)
                         except IOError, errormsg:
-                            self._logger.error("Error copying file! %s" % errormsg)
+                            self._logger.error("Error copying file! %s"
+                                               % errormsg)
                         else:
                             self._logger.info("done")
             else:
                 self._logger.warning("Skipping file: %s" % filename)
+
 
 def main():
     """
     Start a stand alone instance of TvOrganise
     """
 
-    logging.basicConfig(level=logging.INFO,format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.INFO,
+                        format="%(name)s:%(levelname)s: %(message)s")
 
     tvorg = TvOrganiser()
     tvorg.main()
