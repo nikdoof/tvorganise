@@ -6,16 +6,16 @@ def defaults():
    Creates a ConfigParser instance and fills it with the default settings
    """
 
-   config = ConfigParser.ConfigParser()
+   config = ConfigParser.RawConfigParser()
 
    config.add_section('main')
    config.set('main', 'target_path', '/media/%(showname)s/Season %(seasonnum)s/')
-   
+
    config.add_section('regex')
    config.set('regex', 'valid_in_names', "[\\w\\(\\).,\\[\\]'\\ \\-?!#:]")
 
    return config
-    
+
 
 class Config(dict):
     """
@@ -24,12 +24,14 @@ class Config(dict):
     """
 
     def __init__(self, cfile=None):
-        super(Config, self).__init__() 
+        super(Config, self).__init__()
 
         if cfile:
             self.load(cfile)
+        else:
+            self.defaults()
 
-    def load(self, cfile):
+    def load(self, cfile=None, cparser=None):
         """
         Parses the TVOrganiser style config file and produces a dict
         with all the elements contained within.
@@ -37,8 +39,11 @@ class Config(dict):
         Also, all regex specified in the file are compiled
         """
 
-        configpsr = ConfigParser.RawConfigParser()
-        configpsr.read(cfile)
+        if cparser:
+            configpsr = cparser
+        else:
+            configpsr = ConfigParser.RawConfigParser()
+            configpsr.read(cfile)
 
         if configpsr.has_section('main'):
             for key, value in configpsr.items('main'):
@@ -60,3 +65,8 @@ class Config(dict):
 
             self['regex'] = regex
 
+    def defaults(self):
+        """
+        Load default settings
+        """
+        self.load(cparser=defaults())
