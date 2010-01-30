@@ -13,10 +13,9 @@ import sys
 import re
 from optparse import OptionParser
 import shutil
-import ConfigParser
 import logging
-
 import config
+
 
 def same_partition(path1, path2):
     """

@@ -23,13 +23,20 @@ class testTvOrganise(unittest.TestCase):
 
     def testConfigSettings(self):
         """
-        Using a predefined dict, save then load the config and validate 
+        Using a predefined dict, save then load the config and validate
         the contents
         """
         pass
 
+    def testParseFilenames(self):
+        files = ['/media/out/Heroes - [01x05] - Llamaggeddon.avi']
+
+        res = self.tvo.parse_filenames(files)
+        self.assertEqual(res[0]['showname'], 'Heroes')
+
     def setUp(self):
         self.tvo = tvorganise.TvOrganiser()
+        self.tvo._config = tvorganise.config.Config('tvorganise.cfg')
 
 
 class testFindFiles(unittest.TestCase):
@@ -41,14 +48,14 @@ class testFindFiles(unittest.TestCase):
         os.makedirs("/tmp/find-files-test/folder1")
         os.makedirs("/tmp/find-files-test/folder2")
 
-	open('/tmp/find-files-test/folder1/file1', 'w').close() 
+	open('/tmp/find-files-test/folder1/file1', 'w').close()
         open('/tmp/find-files-test/folder1/file2', 'w').close()
         open('/tmp/find-files-test/folder2/file3', 'w').close()
         open('/tmp/find-files-test/folder2/file4', 'w').close()
         open('/tmp/find-files-test/folder2/file5', 'w').close()
 
     def tearDown(self):
-        shutil.rmtree("/tmp/find-files-test/")        
+        shutil.rmtree("/tmp/find-files-test/")
 
     def testFolderList(self):
         self.assertEqual(len(tvorganise.find_files("/tmp/find-files-test/")),5)
@@ -69,7 +76,7 @@ def suite(suite=None):
 
     suite.addTest(unittest.makeSuite(testTvOrganise))
     suite.addTest(unittest.makeSuite(testFindFiles))
- 
+
     return suite
 
 def run():

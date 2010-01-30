@@ -1,20 +1,21 @@
 import ConfigParser
 import re
 
+
 def defaults():
-   """
-   Creates a ConfigParser instance and fills it with the default settings
-   """
+    """
+    Creates a ConfigParser instance and fills it with the default settings
+    """
 
-   config = ConfigParser.RawConfigParser()
+    config = ConfigParser.RawConfigParser()
 
-   config.add_section('main')
-   config.set('main', 'target_path', '/media/%(showname)s/Season %(seasonnum)s/')
+    config.add_section('main')
+    config.set('main', 'target_path', '/media/%(showname)s/Season %(seasonnum)s/')
 
-   config.add_section('regex')
-   config.set('regex', 'valid_in_names', "[\\w\\(\\).,\\[\\]'\\ \\-?!#:]")
+    config.add_section('regex')
+    config.set('regex', 'valid_in_names', "[\\w\\(\\).,\\[\\]'\\ \\-?!#:]")
 
-   return config
+    return config
 
 
 class Config(dict):
