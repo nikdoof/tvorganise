@@ -82,7 +82,13 @@ class TvOrganiser():
             for regex in self._config['regex']:
                 match = regex.match(filename)
                 if match:
-                    showname, seasno, epno, epname = match.groups()
+                    self._logger.debug(match.groups())
+
+                    if len(match.groups()) == 4:
+                        showname, seasno, epno, epname = match.groups()
+                    else: 
+                        showname, seasno, epno = match.groups()
+                        epname = ""
 
                     #remove ._- characters from name
                     showname = re.sub("[\._]|\-(?=$)", " ", showname).strip()
